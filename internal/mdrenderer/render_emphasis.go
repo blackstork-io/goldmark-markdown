@@ -11,10 +11,9 @@ var (
 )
 
 type emphCtx struct {
-	level           int
-	openIdx         int
-	closeIdx        int
-	notAnUnderscore bool
+	level    int
+	openIdx  int
+	closeIdx int
 }
 
 func (r *Renderer) renderEmphasis(n ast.Node, entering bool) error {

@@ -24,7 +24,7 @@ func (t ThematicBreaksOpt) Apply(c *Config) {
 		tbb := []byte(tb)
 		n := c.parse(tbb)
 		if n.ChildCount() != 1 || n.FirstChild().Kind() != ast.KindThematicBreak {
-			c.Errs = append(c.Errs, fmt.Errorf("%w: %q is not a thematic break", IncorrectOptionError, tb))
+			c.Errs = append(c.Errs, fmt.Errorf("%w: %q is not a thematic break", ErrIncorrectOption, tb))
 			continue
 		}
 		res := ThematicBreak{

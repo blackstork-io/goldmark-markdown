@@ -3,9 +3,8 @@ package mdrenderer
 import (
 	"unicode/utf8"
 
-	east "github.com/yuin/goldmark/extension/ast"
-
 	"github.com/yuin/goldmark/ast"
+	east "github.com/yuin/goldmark/extension/ast"
 )
 
 var (
@@ -62,7 +61,10 @@ func (r *Renderer) renderTable(n ast.Node, entering bool) (err error) {
 }
 
 func (r *Renderer) renderTableHeader(n ast.Node, entering bool) error {
-	r.renderTableRow(n, entering)
+	err := r.renderTableRow(n, entering)
+	if err != nil {
+		return err
+	}
 	if !entering {
 		n := n.Parent().(*east.Table)
 		r.appendData(pipe)

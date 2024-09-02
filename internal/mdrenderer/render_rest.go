@@ -49,7 +49,7 @@ func (r *Renderer) renderSegment(segment text.Segment) {
 }
 
 func (r *Renderer) renderSegments(segments *text.Segments, newLines bool) {
-	for i := 0; i < segments.Len(); i++ {
+	for i := range segments.Len() {
 		seg := segments.At(i)
 		r.renderSegment(seg)
 		if newLines {
@@ -60,7 +60,10 @@ func (r *Renderer) renderSegments(segments *text.Segments, newLines bool) {
 
 func (r *Renderer) renderBlockquote(n ast.Node, entering bool) error {
 	if entering {
-		r.renderBaseBlock(n, entering)
+		err := r.renderBaseBlock(n, entering)
+		if err != nil {
+			return err
+		}
 		lastBuf := r.last()
 		if !lastBuf.endOfLine && !lastBuf.isPrefix {
 			// append prefix to the same line

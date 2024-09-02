@@ -1,14 +1,15 @@
 package markdown
 
 import (
-	"github.com/blackstork-io/goldmark-markdown/internal/options"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer"
+
+	"github.com/blackstork-io/goldmark-markdown/internal/options"
 )
 
 var (
-	IncorrectOptionError   = options.IncorrectOptionError
-	UnsupportedOptionError = options.UnsupportedOptionError
+	IncorrectOptionError   = options.ErrIncorrectOption
+	UnsupportedOptionError = options.ErrUnsupportedOption
 )
 
 // WithThematicBreaks sets the thematic break tags to use, in the order of preference

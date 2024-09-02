@@ -6,38 +6,35 @@ import (
 	"io"
 	"sync"
 
-	"github.com/blackstork-io/goldmark-markdown/internal/noderenderer"
-	"github.com/blackstork-io/goldmark-markdown/internal/options"
-
 	"github.com/yuin/goldmark/ast"
 	east "github.com/yuin/goldmark/extension/ast"
 	"github.com/yuin/goldmark/renderer"
+
+	"github.com/blackstork-io/goldmark-markdown/internal/noderenderer"
+	"github.com/blackstork-io/goldmark-markdown/internal/options"
 )
 
 // TODO: add the ability to register new node renderers
 // var _ renderer.NodeRenderer = nodeRenderer{}
 
-var (
-	skipChildrenErr = errors.New("skip children")
-	stopErr         = errors.New("render stopped prematurely")
-)
+var errSkipChildren = errors.New("skip children")
 
 func renderHelper(n ast.Node, fn noderenderer.RenderFunc) (err error) {
 	err = fn(n, true)
-	switch err {
-	case skipChildrenErr:
+	if err != nil {
+		if !errors.Is(err, errSkipChildren) {
+			return
+		}
 		// this error gets overwritten by next fn call
-	case nil:
+	} else {
 		for c := n.FirstChild(); c != nil; c = c.NextSibling() {
 			if err = renderHelper(c, fn); err != nil {
 				return
 			}
 		}
-	default:
-		return
 	}
 	err = fn(n, false)
-	if err == skipChildrenErr {
+	if errors.Is(err, errSkipChildren) {
 		// children were already rendered, nothing to skip
 		err = nil
 	}
@@ -60,13 +57,6 @@ type buf struct {
 }
 
 type bufs []buf
-
-func (r *Renderer) last() *buf {
-	if len(r.bufs) == 0 {
-		return &buf{endOfLine: r.wasAtNL}
-	}
-	return &r.bufs[len(r.bufs)-1]
-}
 
 // Renderer renders markdown nodes to a writer.
 type Renderer struct {
@@ -92,6 +82,13 @@ type Renderer struct {
 }
 
 var _ renderer.Renderer = &Renderer{}
+
+func (r *Renderer) last() *buf {
+	if len(r.bufs) == 0 {
+		return &buf{endOfLine: r.wasAtNL}
+	}
+	return &r.bufs[len(r.bufs)-1]
+}
 
 func (r *Renderer) atEmptyLine() bool {
 	return r.last().endOfLine
@@ -133,7 +130,7 @@ func (r *Renderer) AddOptions(opts ...renderer.Option) {
 		if opt, ok := val.(options.Option); ok {
 			opt.Apply(&r.config)
 		} else {
-			r.config.Errs = append(r.config.Errs, fmt.Errorf("%w: %s", options.UnsupportedOptionError, name))
+			r.config.Errs = append(r.config.Errs, fmt.Errorf("%w: %s", options.ErrUnsupportedOption, name))
 		}
 	}
 

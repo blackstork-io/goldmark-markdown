@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	IncorrectOptionError   = errors.New("incorrect option value")
-	UnsupportedOptionError = errors.New("unsupported option")
+	ErrIncorrectOption   = errors.New("incorrect option value")
+	ErrUnsupportedOption = errors.New("unsupported option")
 )
 
 type Config struct {
@@ -51,5 +51,5 @@ func (c *Config) parse(src []byte) ast.Node {
 
 // Option for markdown renderer
 type Option interface {
-	Apply(*Config)
+	Apply(config *Config)
 }

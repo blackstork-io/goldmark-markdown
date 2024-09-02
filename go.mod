@@ -1,6 +1,6 @@
 module github.com/blackstork-io/goldmark-markdown
 
-go 1.23.0
+go 1.22
 
 require (
 	github.com/davecgh/go-spew v1.1.1

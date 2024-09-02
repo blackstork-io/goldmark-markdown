@@ -7,11 +7,12 @@ import (
 	"log"
 	"os"
 
-	markdown "github.com/blackstork-io/goldmark-markdown"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/text"
+
+	markdown "github.com/blackstork-io/goldmark-markdown"
 )
 
 func withStdoutCapture(fn func()) ([]byte, error) {

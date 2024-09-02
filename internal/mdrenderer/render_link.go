@@ -7,7 +7,6 @@ var (
 	linkOpen          = []byte("[")
 	linkMiddle        = []byte("](")
 	linkClose         = []byte(")")
-	titleClose        = []byte{'"'}
 	bracketOpen       = []byte("<")
 	bracketClose      = []byte(">")
 	protocolSeparator = []byte("://")

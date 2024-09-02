@@ -30,7 +30,6 @@ func (r *Renderer) escapeText(text []byte) {
 	// Trying to escape only the necessary characters
 	start := 0
 	afterBackslash := false
-	// fmt.Printf("... %q\n", text)
 	for i := 0; i < len(text); i++ {
 		switch text[i] {
 		case '\\':

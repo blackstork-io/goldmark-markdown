@@ -13,7 +13,7 @@ type SpecExample struct {
 	Markdown []byte
 	HTML     []byte
 	Link     string
-	Id       int
+	ID       int
 	Section  string
 }
 
@@ -25,7 +25,7 @@ type spec struct {
 type specExample struct {
 	Markdown string `json:"markdown"`
 	HTML     string `json:"html"`
-	Id       int    `json:"id"`
+	ID       int    `json:"id"`
 	Section  string `json:"section,omitempty"`
 }
 
@@ -35,8 +35,8 @@ func (s *spec) toExamples() []SpecExample {
 		res[i] = SpecExample{
 			Markdown: []byte(ex.Markdown),
 			HTML:     []byte(ex.HTML),
-			Link:     fmt.Sprintf(s.ExampleLinkFormat, ex.Id),
-			Id:       ex.Id,
+			Link:     fmt.Sprintf(s.ExampleLinkFormat, ex.ID),
+			ID:       ex.ID,
 			Section:  ex.Section,
 		}
 	}

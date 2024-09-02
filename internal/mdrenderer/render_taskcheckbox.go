@@ -13,7 +13,6 @@ func (r *Renderer) renderTaskCheckBox(n ast.Node, entering bool) (err error) {
 		} else {
 			r.appendData(r.config.UncheckedCheckbox)
 		}
-
 	}
 	return nil
 }

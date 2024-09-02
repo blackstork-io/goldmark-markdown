@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/blackstork-io/goldmark-markdown/pkg/mdexamples"
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/util"
+
+	"github.com/blackstork-io/goldmark-markdown/pkg/mdexamples"
 )
 
-func roundtrip(t testing.TB, source []byte, expectedHTMLOverride []byte) {
+func roundtrip(t testing.TB, source, expectedHTMLOverride []byte) {
 	t.Helper()
 	if !bytes.HasSuffix(source, []byte("\n")) {
 		source = append(source, '\n')
@@ -76,7 +77,7 @@ func roundtrip(t testing.TB, source []byte, expectedHTMLOverride []byte) {
 func TestSpecExamplesRoundtrip(t *testing.T) {
 	for _, exFile := range mdexamples.ReadAllSpecExamples() {
 		for _, ex := range exFile.Examples {
-			t.Run(fmt.Sprintf("%s/%d", exFile.Name, ex.Id), func(t *testing.T) {
+			t.Run(fmt.Sprintf("%s/%d", exFile.Name, ex.ID), func(t *testing.T) {
 				t.Parallel()
 				t.Logf("URL: %s", ex.Link)
 				roundtrip(t, ex.Markdown, nil)

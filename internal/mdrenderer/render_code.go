@@ -50,7 +50,7 @@ func (r *Renderer) renderCodeSpan(n ast.Node, entering bool) error {
 			// starts and ends with space, but not entirely spaces
 			needsSpaces = true
 		}
-		// find shortest availible sequence of backticks
+		// find shortest available sequence of backticks
 		seqLen = 1
 		for {
 			if _, found := counts[seqLen]; !found {
@@ -136,6 +136,7 @@ func (r *Renderer) exitCodeBlock() {
 			}
 			continue
 		}
+	loop:
 		for _, c := range sub.data {
 			switch c {
 			case '\t':
@@ -143,7 +144,7 @@ func (r *Renderer) exitCodeBlock() {
 					// not a fence candidate
 					spaceCount = 0
 					fenceCharCount = 0
-					// inPrefix = true
+					inPrefix = true
 					skipLine = true
 					break
 				}
@@ -168,7 +169,7 @@ func (r *Renderer) exitCodeBlock() {
 				fenceCharCount = 0
 				inPrefix = true
 				skipLine = true
-				break
+				break loop
 			}
 		}
 		if sub.endOfLine {

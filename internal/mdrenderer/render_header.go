@@ -5,15 +5,19 @@ import (
 	"fmt"
 	"unicode/utf8"
 
-	"github.com/blackstork-io/goldmark-markdown/internal/options"
 	"github.com/yuin/goldmark/ast"
+
+	"github.com/blackstork-io/goldmark-markdown/internal/options"
 )
 
 var setextChars = [3][]byte{nil, {'='}, {'-'}}
 
 func (r *Renderer) renderHeading(n ast.Node, entering bool) error {
 	if entering {
-		r.renderBaseBlock(n, entering)
+		err := r.renderBaseBlock(n, entering)
+		if err != nil {
+			return err
+		}
 		r.appendData(nil, nil) // reserve space for the ATX heading and space
 		r.pushPos(len(r.bufs))
 		return nil
@@ -38,14 +42,15 @@ func (r *Renderer) renderHeading(n ast.Node, entering bool) error {
 		maxLineLen = max(maxLineLen, curLineLen)
 
 		var isSetext bool
-		if maxLineLen == 0 || n.Level > 2 {
+		switch {
+		case maxLineLen == 0 || n.Level > 2:
 			// ATX
 			isSetext = false
-		} else if lines > 1 {
+		case lines > 1:
 			// Setext
 			isSetext = true
-		} else {
-			// eiter ATX or Setext
+		default:
+			// either ATX or Setext
 			isSetext = r.config.Headings.PreferSetext[n.Level]
 		}
 
