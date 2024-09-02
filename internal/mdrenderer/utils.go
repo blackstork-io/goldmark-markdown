@@ -23,8 +23,8 @@ func pop[T any](slice *[]T) T {
 type padding []byte
 
 func (s *padding) get(count int) []byte {
-	if count > len(*s) {
-		*s = bytes.Repeat(*s, count/len(*s)+1)
+	if count <= len(*s) {
+		return (*s)[:count]
 	}
-	return (*s)[:count]
+	return bytes.Repeat(*s, count/len(*s)+1)[:count]
 }
