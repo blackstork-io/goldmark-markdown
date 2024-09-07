@@ -6,6 +6,7 @@ import (
 	"io"
 	"sync"
 
+	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
 	east "github.com/yuin/goldmark/extension/ast"
 	"github.com/yuin/goldmark/renderer"
@@ -79,6 +80,18 @@ type Renderer struct {
 	wasAtNL           bool
 
 	w io.Writer
+}
+
+var _ goldmark.Extender = &Renderer{}
+
+// Extend implements goldmark.Extender.
+func (r *Renderer) Extend(md goldmark.Markdown) {
+	r.AddOptions(
+		renderer.WithOption(options.OptParser, options.ParserOpt{
+			Parser: md.Parser(),
+		}),
+	)
+	md.SetRenderer(r)
 }
 
 var _ renderer.Renderer = &Renderer{}
