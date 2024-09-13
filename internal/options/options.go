@@ -28,6 +28,7 @@ type Config struct {
 	LinkTitleQuote      []byte
 	CheckedCheckbox     []byte
 	UncheckedCheckbox   []byte
+	IgnoredNodes        []ast.NodeKind
 }
 
 func DefaultConfig() Config {

@@ -30,7 +30,7 @@ func roundtrip(t testing.TB, source, expectedHTMLOverride []byte) {
 
 	mdToMd := goldmark.New(
 		goldmark.WithParser(mdToHtml.Parser()),
-		goldmark.WithRenderer(NewRenderer()),
+		goldmark.WithExtensions(NewRenderer()),
 	)
 
 	expectedHtmlBuf := &bytes.Buffer{}
