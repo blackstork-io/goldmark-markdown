@@ -11,8 +11,8 @@ import (
 	east "github.com/yuin/goldmark/extension/ast"
 	"github.com/yuin/goldmark/renderer"
 
-	"github.com/blackstork-io/goldmark-markdown/internal/noderenderer"
 	"github.com/blackstork-io/goldmark-markdown/internal/options"
+	"github.com/blackstork-io/goldmark-markdown/noderenderer"
 )
 
 // TODO: add the ability to register new node renderers
@@ -43,8 +43,9 @@ func renderHelper(n ast.Node, fn noderenderer.RenderFunc) (err error) {
 }
 
 // NewRenderer returns a new renderer. Use [goldmark.WithRenderer] to add it to a goldmark instance.
-func NewRenderer() *Renderer {
+func NewRenderer(opts ...options.Option) *Renderer {
 	return &Renderer{
+		opts:              opts,
 		config:            options.DefaultConfig(),
 		previousLineBlank: true, // document (conceptually) starts with a blank line
 		wasAtNL:           true,
@@ -62,6 +63,7 @@ type bufs []buf
 // Renderer renders markdown nodes to a writer.
 type Renderer struct {
 	config            options.Config
+	opts              []options.Option
 	initOnce          sync.Once
 	nodeRendererFuncs []noderenderer.RenderFunc
 
@@ -86,11 +88,9 @@ var _ goldmark.Extender = &Renderer{}
 
 // Extend implements goldmark.Extender.
 func (r *Renderer) Extend(md goldmark.Markdown) {
-	r.AddOptions(
-		renderer.WithOption(options.OptParser, options.ParserOpt{
-			Parser: md.Parser(),
-		}),
-	)
+	options.ParserOpt{
+		Parser: md.Parser(),
+	}.Apply(&r.config)
 	md.SetRenderer(r)
 }
 
@@ -129,34 +129,8 @@ func (r *Renderer) getRenderer(kind ast.NodeKind) noderenderer.RenderFunc {
 //
 // You can call this method directly or use [goldmark.WithRendererOptions].
 func (r *Renderer) AddOptions(opts ...renderer.Option) {
-	r.initOnce.Do(r.init)
-
-	config := renderer.NewConfig()
-	for _, opt := range opts {
-		opt.SetConfig(config)
-	}
-	if opt, found := config.Options[options.OptParser]; found {
-		delete(config.Options, options.OptParser)
-		opt.(options.Option).Apply(&r.config)
-	}
-	for name, val := range config.Options {
-		if opt, ok := val.(options.Option); ok {
-			opt.Apply(&r.config)
-		} else {
-			r.config.Errs = append(r.config.Errs, fmt.Errorf("%w: %s", options.ErrUnsupportedOption, name))
-		}
-	}
-
-	config.NodeRenderers.Sort()
-	l := len(config.NodeRenderers)
-	for i := l - 1; i >= 0; i-- {
-		v := config.NodeRenderers[i]
-		nr, ok := v.Value.(noderenderer.NodeRenderer)
-		if !ok {
-			continue
-		}
-		r.setRenderer(nr.Kind, nr.Fn)
-	}
+	// ignore standard options
+	return
 }
 
 // Render renders the given AST node to the given writer.
@@ -220,6 +194,13 @@ func (r *Renderer) init() {
 	r.setRenderer(east.KindTableCell, r.renderTableCell)
 	r.setRenderer(east.KindStrikethrough, r.renderStrikethrough)
 	r.setRenderer(east.KindTaskCheckBox, r.renderTaskCheckBox)
+
+	for _, opt := range r.opts {
+		opt.Apply(&r.config)
+	}
+	for _, kind := range r.config.IgnoredNodes {
+		r.setRenderer(kind, noderenderer.NoopRenderer)
+	}
 }
 
 // appends new line if the previous line is not empty
@@ -246,7 +227,7 @@ func (r *Renderer) endLine() {
 }
 
 func (r *Renderer) flush() error {
-	if len(r.positionStack) != 0 || len(r.emphStack) != 0 || len(r.bufs) == 0 || r.table != nil {
+	if len(r.positionStack) != 0 || len(r.emphStack) != 0 || r.table != nil || len(r.bufs) == 0 {
 		return nil
 	}
 

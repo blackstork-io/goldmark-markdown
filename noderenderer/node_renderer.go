@@ -6,6 +6,10 @@ import "github.com/yuin/goldmark/ast"
 
 type RenderFunc func(n ast.Node, entering bool) error
 
+func NoopRenderer(n ast.Node, entering bool) error {
+	return nil
+}
+
 type NodeRenderer struct {
 	Kind ast.NodeKind
 	Fn   RenderFunc
