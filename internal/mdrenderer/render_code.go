@@ -196,6 +196,7 @@ func (r *Renderer) exitCodeBlock() {
 		fence = tildas.get(fenceCharCount)
 	}
 	r.bufs[start-1].data = fence
+	r.endNonemptyLine()
 	r.appendData(fence)
 	r.endLine()
 }
